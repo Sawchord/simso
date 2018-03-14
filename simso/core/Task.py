@@ -275,11 +275,18 @@ class GenericTask(Process):
         job = Job(self, "{}_{}".format(self.name, self._job_count), pred,
                   monitor=self._monitor, etm=self._etm, sim=self.sim)
 
-        if len(self._activations_fifo) == 0:
-            self.job = job
-            self.sim.activate(job, job.activate_job())
-        self._activations_fifo.append(job)
-        self._jobs.append(job)
+        # This behavior, where the next task is only activated, whenever the old task
+        # is done is not what would be expected
+        # Therefore we have to fork it to have the correct behavior
+
+        #if len(self._activations_fifo) == 0:
+        #    self.job = job
+        #    self.sim.activate(job, job.activate_job())
+        #self._activations_fifo.append(job)
+        #self._jobs.append(job)
+
+        self.job = job
+        self.sim.activate(job, job.activate_job())
 
         timer_deadline = Timer(self.sim, GenericTask._job_killer,
                                (self, job), self.deadline)
