@@ -63,8 +63,9 @@ class TaskR(object):
             #self.waiting_jobs[0].terminate(date)
             #self.waiting_jobs.pop(0)
 
-            job.terminate(date)
-            self.waiting_jobs.remove(job)
+            jobr = [x for x in self.waiting_jobs if x.job == job][0]
+            jobr.terminate(date)
+            self.waiting_jobs.remove(jobr)
 
             if self.waiting_jobs:
                 self.waiting_jobs[0].start(date)
@@ -76,8 +77,10 @@ class TaskR(object):
 
             #self.waiting_jobs[0].abort(date)
             #self.waiting_jobs.pop(0)
-            job.abort(date)
-            self.waiting_jobs.remove(job)
+
+            jobr = [x for x in self.waiting_jobs if x.job == job][0]
+            jobr.abort(date)
+            self.waiting_jobs.remove(jobr)
 
             self.abort_count += 1
             if self.waiting_jobs:
