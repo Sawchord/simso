@@ -53,23 +53,32 @@ class TaskR(object):
         jobr = JobR(date, job)
         self.jobs.append(jobr)
         self.waiting_jobs.append(jobr)
-        if len(self.waiting_jobs) == 1:
-            jobr.start(date)
+        #if len(self.waiting_jobs) == 1:
+        #    jobr.start(date)
+        jobr.start(date)
 
-    def terminate_job(self, date):
+    def terminate_job(self, date, job):
         if self.waiting_jobs:
             self.preempt(date)
-            self.waiting_jobs[0].terminate(date)
-            self.waiting_jobs.pop(0)
+            #self.waiting_jobs[0].terminate(date)
+            #self.waiting_jobs.pop(0)
+
+            job.terminate(date)
+            self.waiting_jobs.remove(job)
+
             if self.waiting_jobs:
                 self.waiting_jobs[0].start(date)
             self.preempt_date = None
 
-    def abort_job(self, date):
+    def abort_job(self, date, job):
         if self.waiting_jobs:
             self.preempt(date)
-            self.waiting_jobs[0].abort(date)
-            self.waiting_jobs.pop(0)
+
+            #self.waiting_jobs[0].abort(date)
+            #self.waiting_jobs.pop(0)
+            job.abort(date)
+            self.waiting_jobs.remove(job)
+
             self.abort_count += 1
             if self.waiting_jobs:
                 self.waiting_jobs[0].start(date)
@@ -257,9 +266,9 @@ class Results(object):
             if evt[1].event == JobEvent.ACTIVATE:
                 self.tasks[task].add_job(evt[0], evt[1].job)
             elif evt[1].event == JobEvent.TERMINATED:
-                self.tasks[task].terminate_job(evt[0])
+                self.tasks[task].terminate_job(evt[0], evt[1].job)
             elif evt[1].event == JobEvent.ABORTED:
-                self.tasks[task].abort_job(evt[0])
+                self.tasks[task].abort_job(evt[0], evt[1].job)
             elif evt[1].event == JobEvent.EXECUTE:
                 self.tasks[task].execute(evt[0], evt[1].cpu)
                 for rt in self.tasks.values():
